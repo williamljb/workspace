@@ -88,13 +88,13 @@ void triangle_to_obj (const string &inname, const string &outname) {
 
 vector<Face*> triangulate (const vector<Vert*> &verts);
 
-void load_obj (Mesh &mesh, const string &filename) {
-    delete_mesh(mesh);
+bool load_obj (Mesh &mesh, const string &filename) {
     fstream file(filename.c_str(), ios::in);
     if(!file) {
         cout << "Error: failed to open file " << filename << endl;
-        return;
+        return false;
     }
+    delete_mesh(mesh);
     while (file) {
         string line;
         get_valid_line(file, line);
@@ -165,11 +165,14 @@ void load_obj (Mesh &mesh, const string &filename) {
     }
     mark_nodes_to_preserve(mesh);
     compute_ms_data(mesh);
+    return true;
 }
 
-void load_objs (vector<Mesh*> &meshes, const string &prefix) {
+bool load_objs (vector<Mesh*> &meshes, const string &prefix) {
+    bool ans = true;
     for (int m = 0; m < meshes.size(); m++)
-        load_obj(*meshes[m], stringf("%s_%02d.obj", prefix.c_str(), m));
+        ans = ans && load_obj(*meshes[m], stringf("%s_%02d.obj", prefix.c_str(), m));
+    return ans;
 }
 
 static double angle (const Vec3 &x0, const Vec3 &x1, const Vec3 &x2) {

@@ -29,14 +29,13 @@ def scale_uv(object_name, scale):
     # return to the original area
     bpy.context.area.type = current_area
     """
-def change_obj(dir, name0, name1, list):
+def change_obj(name0, name1, list):
     #bpy.ops.object.mode_set(mode='EDIT')
     varr = []
-    print(os.path.join(dir, name1))
     for k in list:
         varr.append(k.co)
-    f1 = open(os.path.join(dir, name0), 'r')
-    f2 = open(os.path.join(dir, name1), 'r')
+    f1 = open(name0, 'r')
+    f2 = open(name1, 'r')
     arr = []
     for l in f1.readlines():
         if l[0]=='v' and l[1]==' ':
@@ -64,12 +63,12 @@ def change_obj(dir, name0, name1, list):
     #bpy.ops.object.mode_set(mode='OBJECT')
 
 
-def print_coor(in_dir, out_dir, candidates, candidates_name, n):
+def print_coor(out_dir, candidates, candidates_name, n):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     for i in range(0,n):
         P, K, RT = matrix_utils.get_3x4_P_matrix_from_blender(bpy.data.objects['Camera'])
-        fi = open(os.path.join(in_dir, candidates[i]), 'r')
+        fi = open(candidates[i], 'r')
         fo = open(os.path.join(out_dir, '%s.csv'%candidates_name[i]), 'w')
         for line in fi.readlines():
             if line[0]=='v' and line[1]==' ':
@@ -117,8 +116,11 @@ def random_load_image(image_dir):
 
     return bpy.data.images.load(realpath)
 
-def render_png(home, lst_ply, in_dir_ply, in_dir, n, candidates, candidates_name, out_dir):
+def render_png(home, lst_ply, in_dir, n, candidates, candidates_name, out_dir, obstacles):
     # Set file_format for render images
+    if len(obstacles)>0:
+        bpy.data.objects["Camera"].location=Vector((2.83,-1.05,2.60))
+        bpy.data.objects["Camera"].rotation_euler=Vector((1.11,0.0108,0.815))
     bpy.data.scenes["Scene"].render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
     bpy.data.scenes["Scene"].render.engine = 'CYCLES'
     bpy.data.scenes["Scene"].cycles.film_transparent = True
@@ -172,26 +174,28 @@ def render_png(home, lst_ply, in_dir_ply, in_dir, n, candidates, candidates_name
     for i in range (0,n):
         bpy.context.scene.frame_set(i+1)
         if i==0:
-            import_obj("%s/%s"%(in_dir_ply, candidates[i]))
+            import_obj(candidates[i])
+            if len(obstacles)>i:
+                import_obj(obstacles[i])
         else:
-            change_obj(in_dir_ply, candidates[i-1], candidates[i], bpy.data.objects[candidates_name[0]].data.vertices)
+            if len(obstacles)>i:
+                change_obj(obstacles[i-1], obstacles[i], bpy.data.objects["1-base"].data.vertices)
+            change_obj(candidates[i-1], candidates[i], bpy.data.objects[candidates_name[0]].data.vertices)
+        if len(obstacles)>0:
+            cur1 = bpy.data.objects["1-base"]
+            cur1.hide = False
+            cur1.hide_render = False
+            bpy.context.scene.objects.active = cur1 #get object
+            bpy.ops.anim.insert_keyframe_animall()
+        #
         cur = bpy.data.objects[candidates_name[0]]
         cur.hide = False    #objects must be visible to use modifier
         cur.hide_render = False    #objects must be renderable to export render image
-        bpy.context.scene.objects.active = cur #get object
-        #bpy.data.scenes["Scene"].render.filepath = '%s/%03d'%(in_dir,i)    #set save filepath
-        #cur.data.materials.append(mat);
+        bpy.context.scene.objects.active = cur
         cur.active_material = mat
         if i==0:
             scale_uv(candidates_name[0], 0.3)
         bpy.ops.anim.insert_keyframe_animall()
-        #for j in cur.data.vertices:
-        #    print(j.co)
-        #for k,v in cur.data.vertices.items():
-        #    cur.data.keyframe_insert(data_path='vertices',frame=i,index=k)
-        #bpy.ops.render.render( write_still=True )    #render and save
-        #bpy.data.scenes["Scene"].objects.unlink(cur)
-        #bpy.data.objects.remove(cur)
     bpy.ops.object.shade_smooth()
     bpy.ops.object.particle_system_add()
     bpy.data.scenes["Scene"].render.filepath = in_dir
@@ -201,46 +205,6 @@ def render_png(home, lst_ply, in_dir_ply, in_dir, n, candidates, candidates_name
     bpy.data.scenes["Scene"].render.resolution_x = resx
     bpy.data.scenes["Scene"].render.resolution_y = resy
     bpy.data.scenes["Scene"].render.resolution_percentage = 100
-    bpy.data.scenes["Scene"].render.image_settings.file_format = 'AVI_JPEG'
-    bpy.data.scenes["Scene"].render.filepath = out_dir
-    #bpy.ops.render.shutter_curve_preset(shape='SMOOTH')
-    bpy.ops.render.render( animation=True )
-
-def render_avi(in_dir, out_dir, n):
-    return
-     # Active VSE to generate rendering animation
-    bpy.data.scenes["Scene"].render.use_sequencer = True
-
-    # Filter file list by valid file types.
-    lst = os.listdir(in_dir)
-    re_image = []
-    re_image_name = []
-    c=0
-    for item in lst:
-        fileName, fileExtension = os.path.splitext(lst[c])
-        if fileExtension == ".exr":
-            re_image.append(item)
-            re_image_name.append(fileName)
-        c=c+1
-
-    # Create the sequencer data
-    bpy.context.scene.sequence_editor_create()
-
-    # Add strip into VSE by importing new image
-    for i in range (0,n):
-        bpy.context.scene.sequence_editor.sequences.new_image(
-            name=re_image[i],
-            filepath=os.path.join(in_dir, re_image[i]),
-            channel=1, frame_start=i)
-
-    # Resolution settings for animation
-    resx = 720; #1920
-    resy = 480; #1080
-    bpy.data.scenes["Scene"].render.resolution_x = resx
-    bpy.data.scenes["Scene"].render.resolution_y = resy
-    bpy.data.scenes["Scene"].render.resolution_percentage = 100
-
-    bpy.data.scenes["Scene"].frame_end = n
     bpy.data.scenes["Scene"].render.image_settings.file_format = 'AVI_JPEG'
     bpy.data.scenes["Scene"].render.filepath = out_dir
     #bpy.ops.render.shutter_curve_preset(shape='SMOOTH')

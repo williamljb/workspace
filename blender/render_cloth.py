@@ -39,14 +39,26 @@ c=0
 for item in lst_ply:
     fileName, fileExtension = os.path.splitext(lst_ply[c])
     if fileExtension == ".obj":
-        candidates.append(item)
+        candidates.append("%s/%s"%(in_dir_ply,item))
         candidates_name.append(fileName)
     c=c+1
 candidates.sort()
 candidates_name.sort()
 
+obstacles = []
+c=0
+obs_ply = os.listdir(sys.argv[10])
+if len(sys.argv)==11:
+    for item in obs_ply:
+        fileName, fileExtension = os.path.splitext(obs_ply[c])
+        if fileExtension == ".obj":
+            obstacles.append("%s/%s"%(sys.argv[10],item))
+        c=c+1
+obstacles.sort()
+
+
 file = [{"name":i} for i in candidates]
 n = len(file)
 
-blender_utils.print_coor(in_dir_ply, os.path.join(root_dir, sys.argv[9]), candidates, candidates_name, n)
-blender_utils.render_png(root_dir, lst_ply, in_dir_ply, in_dir, n, candidates, candidates_name, out_dir)
+blender_utils.print_coor(os.path.join(root_dir, sys.argv[9]), candidates, candidates_name, n)
+blender_utils.render_png(root_dir, lst_ply, in_dir, n, candidates, candidates_name, out_dir, obstacles)

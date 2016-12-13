@@ -2,12 +2,12 @@
 // Narain et al. 2012, Figure 10(a)
 {
     "frame_time": 0.04,
-    "frame_steps": 8,
+    "frame_steps": 20,
     "end_time": 2.8,
     "cloths": [{
-        "mesh": "obs/1.obj",
+        "mesh": "meshes/dress3_sim.obj",
         "transform":{"translate":[0,0,0]},
-        "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 0.1}],
+        "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 1}],
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.01,
@@ -26,7 +26,7 @@
     },
     "disable":["remeshing"],
     "obstacles": [{
-        "mesh": "obs/obs_000001.obj",
+        "mesh": "obs/obs_000000.obj",
         "motion_obj_file": "obs/obs_%06d.obj",
         "motion_type": 1
     }],

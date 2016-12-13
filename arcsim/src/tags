@@ -373,11 +373,11 @@ static string inprefix, outprefix;40,1509
 static int frameskip;41,1544
 static bool running 43,1567
 static void reload 45,1597
-static void idle 61,2202
-static void keyboard 76,2514
-static void special 85,2719
-void display_replay 102,3183
-void display_replay 130,4078
+static void idle 61,2152
+static void keyboard 76,2464
+static void special 85,2669
+void display_replay 102,3133
+void display_replay 130,4028
 
 displayreplay.hpp,34
 #define DISPLAYREPLAY_HPP28,1324
@@ -512,17 +512,17 @@ struct GlueHandle:GlueHandle69,2479
 io.cpp,383
 void get_valid_line 43,1566
 void triangle_to_obj 49,1711
-void load_obj 91,3095
-void load_objs 170,6143
-static double angle 175,6326
-vector<Face*> triangulate 181,6514
-void save_obj 210,7539
-void save_objs 262,9683
-void save_transformation 267,9872
-void save_screenshot 288,10685
-void flip_image 317,11697
-void save_png 324,11936
-void ensure_existing_directory 369,13608
+bool load_obj 91,3095
+bool load_objs 171,6166
+static double angle 178,6399
+vector<Face*> triangulate 184,6587
+void save_obj 213,7612
+void save_objs 265,9756
+void save_transformation 270,9945
+void save_screenshot 291,10758
+void flip_image 320,11770
+void save_png 327,12009
+void ensure_existing_directory 372,13681
 
 io.hpp,23
 #define IO_HPP28,1313
@@ -696,7 +696,7 @@ obstacle.cpp,152
 Mesh& Obstacle::get_mesh(34,1401
 const Mesh& Obstacle::get_mesh(38,1461
 Mesh& Obstacle::get_mesh(42,1533
-void Obstacle::blend_with_previous 83,3071
+void Obstacle::blend_with_previous 78,2924
 
 obstacle.hpp,95
 #define OBSTACLE_HPP28,1319
