@@ -1,0 +1,10 @@
+
+
+10/01/2016:
+
+Handle relinking has already been fixed in KillDevil arcsim (maybe by Tanya), so original adding on initresume() of runphysics.cpp removed.
+
+10/03/2016: 
+
+apply_transformation_onto() in mesh.cpp and NodeHandle::get_constraints() in handle.cpp has changed, applying transformation on y as well and use y to define relax point of node handles to fix the bug of gradually moving of handles between resumed frames.
+
