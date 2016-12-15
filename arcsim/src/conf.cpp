@@ -480,6 +480,7 @@ void parse_obstacle (Obstacle &obstacle, const Json::Value &json,
     apply_transformation(obstacle.base_mesh, transform);
     int m;
     parse(m, json["motion"], -1);
+    parse(obstacle.slow, json["slow"], 1);
     parse(obstacle.motion_obj_file, json["motion_obj_file"], string(""));
     parse(obstacle.motion_type, json["motion_type"], 0);
     obstacle.transform_spline = (m != -1) ? &motions[m] : NULL;

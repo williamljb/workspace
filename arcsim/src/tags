@@ -235,15 +235,15 @@ void parse_circle_handle 411,14945
 void parse_glue_handle 429,15591
 void parse_obstacles 449,16253
 void parse_obstacle 473,17088
-void parse_morphs 494,17965
-void parse_morph 501,18208
-void parse 531,19323
-void parse 537,19516
-#define PARSE_MAGIC(538,19569
-#undef PARSE_MAGIC549,20041
-void load_material_data 557,20183
-void parse 573,20762
-void parse 583,21081
+void parse_morphs 495,18008
+void parse_morph 502,18251
+void parse 532,19366
+void parse 538,19559
+#define PARSE_MAGIC(539,19612
+#undef PARSE_MAGIC550,20084
+void load_material_data 558,20226
+void parse 574,20805
+void parse 584,21124
 
 conf.hpp,25
 #define CONF_HPP28,1315
@@ -696,12 +696,12 @@ obstacle.cpp,152
 Mesh& Obstacle::get_mesh(34,1401
 const Mesh& Obstacle::get_mesh(38,1461
 Mesh& Obstacle::get_mesh(42,1533
-void Obstacle::blend_with_previous 78,2924
+void Obstacle::blend_with_previous 81,3035
 
 obstacle.hpp,95
 #define OBSTACLE_HPP28,1319
 struct Obstacle 37,1560
-    Obstacle Obstacle::Obstacle61,2388
+    Obstacle Obstacle::Obstacle61,2382
 
 opengl.hpp,96
 #define OPENGL_HPP28,1317

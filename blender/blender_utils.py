@@ -130,6 +130,7 @@ def render_png(home, lst_ply, in_dir, n, candidates, candidates_name, out_dir, o
     bpy.context.scene.render.layers["RenderLayer"].use_pass_combined = True
     bpy.ops.wm.addon_enable(module='animation_animall')
     bpy.data.window_managers["WinMan"].key_points = True
+    bpy.context.scene.cycles.samples = 200
 
 
     # load images for cloth texture and background

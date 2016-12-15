@@ -148,7 +148,7 @@ void doit(int *order, int *ans, const char *file)
 	for (int i = 0; i < tot; ++i)
 	{
 		int xj = i;
-		vector<int> x = findkNN(s, i, -1, ele+0);
+		vector<int> x = findkNN(s, i, i, ele+0);
 		int cl = findMaxi(x, ele+0, ans);
 		if (cl == ans[xj])
 			++cor;

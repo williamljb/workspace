@@ -40,6 +40,9 @@ const Mesh& Obstacle::get_mesh() const {
 }
 
 Mesh& Obstacle::get_mesh(double time, int cur_frame, double percent, double frame_time) {
+  percent = (percent + cur_frame%slow)/slow;
+  cur_frame = cur_frame / slow;
+  frame_time = frame_time * slow;
   if (percent > 0.99){cur_frame++;percent=0;}
   cout << cur_frame << " " << frame_time << endl;
     if (time > end_time)

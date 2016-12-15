@@ -1,10 +1,10 @@
 # Blender MTL File: '1.blend'
 # Material Count: 1
 
-newmtl DefaultSkin
+newmtl DefaultSkin.008
 Ns 478.431373
 Ka 1.000000 1.000000 1.000000
-Kd 0.592400 0.442000 0.339500
+Kd 0.590300 0.440000 0.338000
 Ks 0.150000 0.150000 0.150000
 Ke 0.000000 0.000000 0.000000
 Ni -1.000000
