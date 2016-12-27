@@ -157,7 +157,7 @@ void doit(int *order, int *ans, const char *file)
 	for (int i = 0; i < 6; ++i)
 	{
 		for (int j = 0; j < 6; ++j)
-			cout << (a[i][j]+a[j][i])/2 << " ";
+			cout << a[i][j] << " ";
 		cout << endl;
 	}
 	for (int i = 0; i < s.size(); ++i)
