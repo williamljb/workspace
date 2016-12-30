@@ -1,35 +1,29 @@
-// Dress on female character
-// Narain et al. 2012, Figure 10(a)
+// Flag blowing in the wind
+// Narain et al. 2012, Figure 8
 {
     "frame_time": 0.04,
     "frame_steps": 8,
-    "end_time": 2.79,
+    "end_time": 4,
     "cloths": [{
-        "mesh": "meshes/dress4_sim.obj",
-        "materials": [{"data": "materials/navy-sparkle-sweat.json", "bending_mult": 1}],
+        "mesh": "meshes/flag.obj",
+	"transform": {"translate": [0, 0, 0], "rotate": [120, 1, 1, 1]},
+        "materials": [{
+	    "data": "materials/white-dots-on-blk.json",
+            "thicken": 2,
+            "strain_limits": [0.95, 1.05]//,
+            //"stretching_mult": 15.8108,
+            //"bending_mult": 3.5
+	}],
         "remeshing": {
             "refine_angle": 0.3,
             "refine_compression": 0.01,
-            "refine_velocity": 0.5,
-            "size": [10e-3, 200e-3],
+            "refine_velocity": 1,
+            "size": [20e-3, 500e-3],
             "aspect_min": 0.2
         }
     }],
-    "motions": {
-        "motfile": "meshes/dance-paused.mot",
-        "fps": 30,
-        "transform": {
-            "translate": [0, 0, -1],
-            "rotate": [-90, 0, 0, 1]
-        }
-    },
-    "disable":["remeshing"],
-    "obstacles": [{
-        "mesh": "obs/obs_000000.obj",
-        "motion_obj_file": "obs/obs_%06d.obj",
-        "motion_type": 1,
-        "slow": 1
-    }],
-    "gravity": [0, -9.8, 0],
-    "magic": {"repulsion_thickness": 5e-3, "collision_stiffness": 1e6}
+    "handles": [{"nodes": [0,3]}],
+    "gravity": [0, 0, -9.8],
+    "wind": {"velocity": [10, 0, 0]},
+    "magic": {"repulsion_thickness": 10e-3, "collision_stiffness": 1e6}
 }
