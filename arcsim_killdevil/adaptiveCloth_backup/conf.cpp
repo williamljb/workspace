@@ -258,8 +258,6 @@ void parse (Cloth::Material *&material, const Json::Value &json) {
     stretching_mult *= thicken;
     bending_mult *= thicken;
     material->density *= density_mult;
-    material->stretching_mult = stretching_mult;
-    material->bending_mult = bending_mult;
     for (int i = 0; i < sizeof(material->stretching.s)/sizeof(Vec4); i++)
         ((Vec4*)&material->stretching.s)[i] *= stretching_mult;
     for (int i = 0; i < sizeof(material->bending.d)/sizeof(double); i++)
@@ -393,8 +391,6 @@ void parse_node_handle (vector<Handle*> &hans, const Json::Value &json,
             if (mesh.nodes[n]->label != l)
                 continue;
             NodeHandle *han = new NodeHandle;
-            han->clothIdx = c;
-            han->nodeIdx = n;
             han->node = mesh.nodes[n];
             han->node->preserve = true;
             han->motion = motion;
@@ -404,8 +400,6 @@ void parse_node_handle (vector<Handle*> &hans, const Json::Value &json,
     if (!ns.empty()) {
         for (int i = 0; i < ns.size(); i++) {
             NodeHandle *han = new NodeHandle;
-            han->clothIdx = c;
-            han->nodeIdx = ns[i];
             han->node = mesh.nodes[ns[i]];
             han->node->preserve = true;
             han->motion = motion;
@@ -466,7 +460,7 @@ void parse_obstacles (vector<Obstacle> &obstacles, const Json::Value &json,
             obs.transform_spline = (i<motions.size()) ? &motions[i] : NULL;
             obs.start_time = 0;
             obs.end_time = infinity;
-            obs.get_mesh(0);
+            obs.get_mesh(0,0,0,1);//!
             obstacles.push_back(obs);
         }
     } else {
@@ -486,10 +480,12 @@ void parse_obstacle (Obstacle &obstacle, const Json::Value &json,
     apply_transformation(obstacle.base_mesh, transform);
     int m;
     parse(m, json["motion"], -1);
+    parse(obstacle.motion_obj_file, json["motion_obj_file"], string(""));
+    parse(obstacle.motion_type, json["motion_type"], 0);
     obstacle.transform_spline = (m != -1) ? &motions[m] : NULL;
     parse(obstacle.start_time, json["start_time"], 0.);
     parse(obstacle.end_time, json["end_time"], infinity);
-    obstacle.get_mesh(0);
+    obstacle.get_mesh(0,0,0,1);//!
 }
 
 void parse_morph (Morph&, const Json::Value&, const vector<Cloth>&);

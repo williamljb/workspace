@@ -1,0 +1,28 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio un-necessities
+Debug/*
+Release/*
+x64/*
+*.suo
+*.sdf
+*.opensdf
+*.pdb
+*.user
+
+# Other
+*.log
+*.tlog
+adaptiveCloth/x64
+*.diagsession
+profiling/*
+distributedframes/*

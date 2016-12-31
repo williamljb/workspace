@@ -39,13 +39,19 @@ const Mesh& Obstacle::get_mesh() const {
     return curr_state_mesh;
 }
 
-Mesh& Obstacle::get_mesh(double time) {
+Mesh& Obstacle::get_mesh(double time, int cur_frame, double percent, double frame_time) {
     if (time > end_time)
         delete_mesh(curr_state_mesh);
     if (time < start_time || time > end_time)
         return curr_state_mesh;
-    if (!activated)
+    if (!activated) {
         curr_state_mesh = deep_copy(base_mesh);
+        if (motion_type == 1) {
+          last_frame_mesh = deep_copy(base_mesh);
+          load_obj(next_frame_mesh, stringf(motion_obj_file, cur_frame+1));
+          last_frame = 0;
+        }
+    }
     if (transform_spline) {
         DTransformation dtrans = get_dtrans(*transform_spline, time);
         Mesh &mesh = curr_state_mesh;
@@ -53,6 +59,20 @@ Mesh& Obstacle::get_mesh(double time) {
             mesh.nodes[n]->x = apply_dtrans(dtrans, base_mesh.nodes[n]->x,
                                             &mesh.nodes[n]->v);
         compute_ws_data(mesh);
+    }
+    else if (motion_type == 1) {
+      Mesh &mesh = curr_state_mesh;
+      if (cur_frame != last_frame)
+      {
+        last_frame = cur_frame;
+        last_frame_mesh = deep_copy(next_frame_mesh);
+        load_obj(next_frame_mesh, stringf(motion_obj_file, cur_frame+1));
+      }
+      for (int n = 0; n < mesh.nodes.size(); ++n)
+      {
+        mesh.nodes[n]->x = (1-percent)*last_frame_mesh.nodes[n]->x+percent*next_frame_mesh.nodes[n]->x;
+        mesh.nodes[n]->v = (next_frame_mesh.nodes[n]->x-last_frame_mesh.nodes[n]->x)/frame_time;
+      }
     }
     if (!activated)
         update_x0(curr_state_mesh);
@@ -65,7 +85,7 @@ void Obstacle::blend_with_previous (double t, double dt, double blend) {
     Transformation trans = (spline)
                          ? get_trans(*spline, t)
                            * inverse(get_trans(*spline, t-dt))
-                         : ::identity();
+                         : identity();
     Mesh &mesh = curr_state_mesh;
     for (int n = 0; n < mesh.nodes.size(); n++) {
         Node *node = mesh.nodes[n];

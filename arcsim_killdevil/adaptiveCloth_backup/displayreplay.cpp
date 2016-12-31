@@ -71,7 +71,6 @@ static void idle () {
     reload();
     fps.tock();
     redisplay();
-    printf("Frame: %d\n", ::frame);
 }
 
 static void keyboard (unsigned char key, int x, int y) {
@@ -90,15 +89,12 @@ static void special (int key, int x, int y) {
     if (key == GLUT_KEY_LEFT) {
         ::frame -= delta;
         reload();
-        printf("Frame: %d\n", ::frame);
     } else if (key == GLUT_KEY_RIGHT) {
         ::frame += delta;
         reload();
-        printf("Frame: %d\n", ::frame);
     } else if (key == GLUT_KEY_HOME) {
         ::frame = 0;
         reload();
-        printf("Frame: %d\n", ::frame);
     }
     redisplay();
 }

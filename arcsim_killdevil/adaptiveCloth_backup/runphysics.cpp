@@ -210,7 +210,8 @@ void init(const std::vector<string> &args) {
         exit(EXIT_FAILURE);
     }
     string json_file = args[0];
-    string outprefix = args.size()>1 ? args[1] : "";
+    init_physics(json_file, outprefix, false);
+    outprefix = args.size()>1 ? args[1] : "";
     if (!outprefix.empty())
         ensure_existing_directory(outprefix);
     double bending_mult = 1, stretching_mult = 1, wind_mult = 1;
@@ -246,7 +247,7 @@ void init(const std::vector<string> &args) {
     Json::Value &wind = json["wind"]["velocity"];
     for (int i = 0; i < 3; ++i)
         wind[i] = Json::Value(wind[i].asDouble()*wind_mult);
-    ofstream fout(outprefix.c_str());
+    ofstream fout((outprefix+"/conf.json").c_str());
     Json::StyledStreamWriter writer;
     writer.write(fout, json);
     save(sim, 0);
@@ -278,7 +279,6 @@ void init_resume(const vector<string> &args) {
 
     // Beginning resume setup
     log_message("Beginning resume.");
-
     string outprefix = args[0];
     string start_frame_str = args[1];
     // Load like we would normally begin physics
@@ -295,7 +295,24 @@ void init_resume(const vector<string> &args) {
         sim.obstacles[i].get_mesh(sim.time, sim.frame, (double)(sim.step-sim.frame*sim.frame_steps)/sim.frame_steps, sim.frame_steps*sim.step_time);
     load_objs(sim.cloth_meshes, stringf("%s/%04d",outprefix.c_str(),sim.frame));
     // We lost any node handle pointers when reloading object; fix them up
-    fix_node_handles(sim);
+    //fix_node_handles(sim);
+    // Reparse the handles
+    {
+        Json::Value json;
+        Json::Reader reader;
+        string configFilename = stringf("%s/conf.json", outprefix.c_str());
+        ifstream file(configFilename.c_str());
+        bool parsingSuccessful = reader.parse(file, json);
+        if(!parsingSuccessful) {
+            fprintf(stderr, "Error reading file: %s\n", configFilename.c_str());
+            fprintf(stderr, "%s", reader.getFormatedErrorMessages().c_str());
+            abort();
+        }
+        file.close();
+        sim.handles.clear();
+        parse_handles(sim.handles, json["handles"], sim.cloths, sim.motions);
+    }
+    cout << "here" << endl;
     // If number of refinement steps is passed as an argument, refine the mesh
     if (args.size() > 3) {
         int num_refinement_steps = atoi(args[3].c_str());
@@ -307,24 +324,10 @@ void init_resume(const vector<string> &args) {
             save_obj(*sim.cloth_meshes[0], stringf("%s/%04d_00.obj",outprefix.c_str(),sim.frame));
         }
     }
+    cout << "here1" << endl;
     log_message("Completed refinement steps.");
     prepare(sim); // re-prepare the new cloth meshes
     separate_obstacles(sim.obstacle_meshes, sim.cloth_meshes);
-
-    // Reparse the handles
-    /*Json::Value json;
-    Json::Reader reader;
-    string configFilename = stringf("%s/conf.json", outprefix.c_str());
-    ifstream file(configFilename.c_str());
-    bool parsingSuccessful = reader.parse(file, json);
-    if(!parsingSuccessful) {
-        fprintf(stderr, "Error reading file: %s\n", configFilename.c_str());
-        fprintf(stderr, "%s", reader.getFormatedErrorMessages().c_str());
-        abort();
-    }
-    file.close();
-    sim.handles.clear();
-    parse_handles(sim.handles, json["handles"], sim.cloths, sim.motions);*/
 }
 
 void resume_physics (const vector<string> &args) {
@@ -352,3 +355,4 @@ void copy_file (const string &input, const string &output) {
     boost::filesystem::copy_file(
         input, output);
 }
+

@@ -53,7 +53,7 @@ void add_constraint_forces (const Cloth &cloth,
 
 void add_external_forces (const Cloth &cloth, const Vec3 &gravity,
                           const Wind &wind, std::vector<Vec3> &fext,
-                          std::vector<Mat3x3> &Jext, int frame);
+                          std::vector<Mat3x3> &Jext, int frame=0);
 
 void add_morph_forces (const Cloth &cloth, const Morph &morph, double t,
                        double dt,
