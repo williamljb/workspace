@@ -242,8 +242,8 @@ void draw_mesh (const Mesh &mesh, bool set_color=false) {
             static Vec3 a = Vec3(0.92, -0.39, 0), b = Vec3(0.05, 0.12, -0.99);
             Vec3 frt = Vec3(0.7,0.7,0.7) + (a*cos(hue) + b*sin(hue))*0.3,
                  bak = frt*0.5 + Vec3(0.5,0.5,0.5);
-            float front[4] = {frt[0], frt[1], frt[2], 1},
-                  back[4] = {bak[0], bak[1], bak[2], 1};
+            float front[4] = {(float)frt[0], (float)frt[1], (float)frt[2], 1},
+                  back[4] = {(float)bak[0], (float)bak[1], (float)bak[2], 1};
             glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, front);
             glMaterialfv(GL_BACK, GL_AMBIENT_AND_DIFFUSE, back);
             // color(area_color(face));
@@ -329,15 +329,15 @@ void draw_node_accels () {
 }
 
 void directional_light (int i, const Vec3 &dir, const Vec3 &dif) {
-    float diffuse[4] = {dif[0], dif[1], dif[2], 1};
-    float position[4] = {dir[0], dir[1], dir[2], 0};
+    float diffuse[4] = {(float)dif[0], (float)dif[1], (float)dif[2], 1};
+    float position[4] = {(float)dir[0], (float)dir[1], (float)dir[2], 0};
     glEnable(GL_LIGHT0+i);
     glLightfv(GL_LIGHT0+i, GL_DIFFUSE, diffuse);
     glLightfv(GL_LIGHT0+i, GL_POSITION, position);
 }
 
 void ambient_light (const Vec3 &a) {
-    float ambient[4] = {a[0], a[1], a[2], 1};
+    float ambient[4] = {(float)a[0], (float)a[1], (float)a[2], 1};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 }
 

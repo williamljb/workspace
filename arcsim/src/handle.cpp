@@ -26,7 +26,6 @@
 
 #include "handle.hpp"
 #include "magic.hpp"
-#include "simulation.hpp"
 using namespace std;
 
 static Vec3 directions[3] = {Vec3(1,0,0), Vec3(0,1,0), Vec3(0,0,1)};
@@ -46,7 +45,7 @@ vector<Constraint*> NodeHandle::get_constraints (double t) {
         return vector<Constraint*>();
     if (!activated) {
         // handle just got started, fill in its original position
-        x0 = motion ? inverse(normalize(motion->pos(t))).apply(node->y) : node->y;
+        x0 = motion ? inverse(normalize(motion->pos(t))).apply(node->x) : node->x;
         activated = true;
     }
     Vec3 x = motion ? normalize(motion->pos(t)).apply(x0) : x0;
@@ -105,15 +104,5 @@ void add_position_constraints (const Node *node, const Vec3 &x, double stiff,
         con->n = directions[i];
         con->stiff = stiff;
         cons.push_back(con);
-    }
-}
-
-void fix_node_handles (Simulation &sim) {
-    for (int i = 0; i < sim.handles.size(); i++) {
-        if (sim.handles[i]->type == NodeHandleType) {
-            NodeHandle *handle = (NodeHandle *)sim.handles[i];
-            handle->node = sim.cloth_meshes[handle->clothIdx]->nodes[handle->nodeIdx];
-            handle->node->preserve = true;
-        }
     }
 }

@@ -29,7 +29,6 @@
 #include "collisionutil.hpp"
 #include "geometry.hpp"
 #include "io.hpp"
-#include "magic.hpp"
 #include "optimization.hpp"
 #include "simulation.hpp"
 #include "util.hpp"
@@ -132,7 +131,7 @@ void find_face_intersection (const Face *face0, const Face *face1);
 vector<Ixn> find_intersections (const vector<AccelStruct*> &accs,
                                 const vector<AccelStruct*> &obs_accs) {
     if (!SO::ixns) {
-        SO::nthreads = ::magic.max_threads;
+        SO::nthreads = omp_get_max_threads();
         SO::ixns = new vector<Ixn>[SO::nthreads];
     }
     for (int t = 0; t < SO::nthreads; t++)

@@ -26,7 +26,6 @@
 
 #include "collisionutil.hpp"
 
-#include "magic.hpp"
 #include "simulation.hpp"
 #include <omp.h>
 using namespace std;
@@ -118,11 +117,11 @@ void for_overlapping_faces (const vector<AccelStruct*> &accs,
                             const vector<AccelStruct*> &obs_accs,
                             double thickness, BVHCallback callback,
                             bool parallel) {
-    int nthreads = ::magic.max_threads;
-    int nnodes = (int)ceil(sqrt(2 * nthreads)) * nthreads;
+    int nnodes = (int)ceil(sqrt(2*omp_get_max_threads()));
     vector<BVHNode*> nodes = collect_upper_nodes(accs, nnodes);
-    omp_set_num_threads(parallel ? nthreads : 1);
-#pragma omp parallel for schedule(guided)
+    int nthreads = omp_get_max_threads();
+    omp_set_num_threads(parallel ? omp_get_max_threads() : 1);
+#pragma omp parallel for
     for (int n = 0; n < nodes.size(); n++) {
         for_overlapping_faces(nodes[n], thickness, callback);
         for (int m = 0; m < n; m++)
@@ -139,10 +138,10 @@ void for_faces_overlapping_obstacles (const vector<AccelStruct*> &accs,
                                       const vector<AccelStruct*> &obs_accs,
                                       double thickness, BVHCallback callback,
                                       bool parallel) {
-    int nthreads = ::magic.max_threads;
-    int nnodes = nthreads;
+    int nnodes = omp_get_max_threads();
     vector<BVHNode*> nodes = collect_upper_nodes(accs, nnodes);
-    omp_set_num_threads(parallel ? nthreads : 1);
+    int nthreads = omp_get_max_threads();
+    omp_set_num_threads(parallel ? omp_get_max_threads() : 1);
 #pragma omp parallel for
     for (int n = 0; n < nodes.size(); n++)
         for (int o = 0; o < obs_accs.size(); o++)

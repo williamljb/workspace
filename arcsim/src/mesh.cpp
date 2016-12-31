@@ -380,8 +380,6 @@ void apply_transformation_onto (const Mesh &start_state, Mesh &onto,
                                 const Transformation &tr) {
     for (int n = 0; n < onto.nodes.size(); n++)
         onto.nodes[n]->x = tr.apply(start_state.nodes[n]->x);
-    for (int n = 0; n < onto.nodes.size(); n++)
-        onto.nodes[n]->y = tr.apply(start_state.nodes[n]->y);
     compute_ws_data(onto);
 }
 

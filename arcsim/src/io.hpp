@@ -31,8 +31,8 @@
 
 void triangle_to_obj (const std::string &infile, const std::string &outfile);
 
-void load_obj (Mesh &mesh, const std::string &filename);
-void load_objs (std::vector<Mesh*> &meshes, const std::string &prefix);
+bool load_obj (Mesh &mesh, const std::string &filename);
+bool load_objs (std::vector<Mesh*> &meshes, const std::string &prefix);
 
 void save_obj (const Mesh &mesh, const std::string &filename);
 void save_objs (const std::vector<Mesh*> &meshes, const std::string &prefix);

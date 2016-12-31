@@ -31,15 +31,7 @@
 #include "mesh.hpp"
 #include <vector>
 
-enum HandleType
-{
-    NodeHandleType,
-    CircleHandleType,
-    GlueHandleType
-};
-
 struct Handle {
-    HandleType type;
     double start_time, end_time, fade_time;
     virtual ~Handle () {};
     virtual std::vector<Constraint*> get_constraints (double t) = 0;
@@ -54,13 +46,11 @@ struct Handle {
 };
 
 struct NodeHandle: public Handle {
-    int clothIdx;
-    int nodeIdx;
     Node *node;
     const Motion *motion;
     bool activated;
     Vec3 x0;
-    NodeHandle (): activated(false) { type = NodeHandleType; }
+    NodeHandle (): activated(false) {}
     std::vector<Constraint*> get_constraints (double t);
     std::vector<Node*> get_nodes () {return std::vector<Node*>(1, node);}
 };
@@ -72,14 +62,12 @@ struct CircleHandle: public Handle {
     double c; // circumference
     Vec2 u;
     Vec3 xc, dx0, dx1;
-    CircleHandle () { type = CircleHandleType; }
     std::vector<Constraint*> get_constraints (double t);
     std::vector<Node*> get_nodes () {return std::vector<Node*>();}
 };
 
 struct GlueHandle: public Handle {
     Node* nodes[2];
-    GlueHandle () { type = GlueHandleType; }
     std::vector<Constraint*> get_constraints (double t);
     std::vector<Node*> get_nodes () {
         std::vector<Node*> ns;
@@ -88,8 +76,5 @@ struct GlueHandle: public Handle {
         return ns;
     }
 };
-
-struct Simulation;
-void fix_node_handles (Simulation &sim);
 
 #endif

@@ -140,7 +140,7 @@ void find_face_intersection (const Face *face0, const Face *face1);
 vector<Ixn> find_intersections (const vector<AccelStruct*> &accs,
                                 const vector<AccelStruct*> &obs_accs) {
     if (!::ixns) {
-        ::nthreads = ::magic.max_threads;
+        ::nthreads = omp_get_max_threads();
         ::ixns = new vector<Ixn>[::nthreads];
     }
     for (int t = 0; t < ::nthreads; t++)

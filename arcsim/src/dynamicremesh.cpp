@@ -34,7 +34,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <map>
-#include <set>
 using namespace std;
 
 static const bool verbose = false;
@@ -359,15 +358,15 @@ RemeshOp flip_some_edges (vector<Face*> &active, Mesh &mesh) {
 bool should_flip (const Edge *edge);
 
 vector<Edge*> find_edges_to_flip (const vector<Face*> &active){
-    set<Edge*> edges;
+    vector<Edge*> edges;
     for (int f = 0; f < active.size(); f++) {
-        edges.insert(active[f]->adje[0]);
-        edges.insert(active[f]->adje[1]);
-        edges.insert(active[f]->adje[2]);
+        include(active[f]->adje[0], edges);
+        include(active[f]->adje[1], edges);
+        include(active[f]->adje[2], edges);
     }
     vector<Edge*> fedges;
-    for (set<Edge*>::iterator it = edges.begin(); it != edges.end(); ++it) {
-        Edge *edge = *it;
+    for (int e = 0; e < edges.size(); e++) {
+        Edge *edge = edges[e];
         if (is_seam_or_boundary(edge) || edge->label != 0
             || !should_flip(edge))
             continue;

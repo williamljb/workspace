@@ -34,7 +34,7 @@
 using namespace std;
 
 std::vector<Motion> load_mot (const std::string &filename, double fps) {
-    return mot_to_spline(filename, ::identity(), fps, 0, 0);
+    return mot_to_spline(filename, identity(), fps, 0, 0);
 }
 
 bool is_all_whitespace(const string& empty) {
@@ -199,7 +199,7 @@ BodyFrameVector& get_body_frames(BodyVector &bodies, size_t body_index) {
 }
 
 Transformation bodyframe_to_transformation(const BodyFrame& bodyFrame) {
-    Transformation tr = ::identity();
+    Transformation tr = identity();
     tr.rotation.s = bodyFrame.orient[0];
     tr.rotation.v = Vec3(bodyFrame.orient[1],
                          bodyFrame.orient[2],

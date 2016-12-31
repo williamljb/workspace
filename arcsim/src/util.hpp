@@ -35,7 +35,7 @@
 #include <vector>
 
 #define EPSILON		1e-7f
-#define NO_OPENGL
+
 // i+1 and i-1 modulo 3
 // This way of computing it tends to be faster than using %
 #define NEXT(i) ((i)<2 ? (i)+1 : (i)-2)

@@ -35,14 +35,7 @@ void save (const Simulation &sim, int frame);
 void init_physics (const std::string &json_file, std::string outprefix, bool is_reloading);
 void init_resume(const std::vector<std::string> &args);
 void sim_step();
-void init (const std::vector<std::string> &args);
 void run_physics (const std::vector<std::string> &args);
 void resume_physics (const std::vector<std::string> &args);
-
-void init_logfile (const std::string filedir, std::ios_base::openmode mode);
-void log_message (const std::string message);
-
-void modify_material(double stretching_mult, double bending_mult,
-                     int cloth_index=0, int mat_index=0);
 
 #endif

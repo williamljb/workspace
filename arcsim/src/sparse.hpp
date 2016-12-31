@@ -78,11 +78,6 @@ template <typename T> struct SpMat {
     std::vector< SpVec<T> > rows;
     SpMat (): m(0), n(0), rows() {}
     explicit SpMat (int m, int n): m(m), n(n), rows(m) {}
-    void setVals(int m, int n) {
-        this->m = m;
-        this->n = n;
-        this->rows.resize(m);
-    }
     T operator() (int i, int j) const {
         return rows[i][j];
     }
@@ -107,20 +102,20 @@ std::ostream &operator<< (std::ostream &out, const SpMat<T> &A) {
     return out;
 }
 
-//inline void debug_save_spmat (const SpMat<double> &A) {
-//    static int n = 0;
-//    std::fstream file(stringf("tmp/spmat%d", n++).c_str(), std::ios::out);
-//    file << "SparseArray[{";
-//    for (int i = 0; i < A.m; i++) {
-//        const SpVec<double> &row = A.rows[i];
-//        for (int jj = 0; jj < row.indices.size(); jj++) {
-//            int j = row.indices[jj];
-//            const double &aij = row.entries[jj];
-//            file << (i==0 && jj==0 ? "" : ", ") << "{" << i+1 << "," << j+1
-//                 << "} -> " << aij;
-//        }
-//    }
-//    file << "}]" << file;
-//}
+inline void debug_save_spmat (const SpMat<double> &A) {
+    static int n = 0;
+    std::fstream file(stringf("tmp/spmat%d", n++).c_str(), std::ios::out);
+    file << "SparseArray[{";
+    for (int i = 0; i < A.m; i++) {
+        const SpVec<double> &row = A.rows[i];
+        for (int jj = 0; jj < row.indices.size(); jj++) {
+            int j = row.indices[jj];
+            const double &aij = row.entries[jj];
+            file << (i==0 && jj==0 ? "" : ", ") << "{" << i+1 << "," << j+1
+                 << "} -> " << aij;
+        }
+    }
+    file << "}]";// << file;
+}
 
 #endif

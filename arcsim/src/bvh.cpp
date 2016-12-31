@@ -78,8 +78,22 @@ BOX face_box (const Face *face, bool ccd) {
     return box;
 }
 
+BOX dilate (const BOX &box, double d) {
+    static double sqrt2 = sqrt(2);
+    BOX dbox = box;
+    for (int i = 0; i < 3; i++) {
+        dbox._dist[i] -= d;
+        dbox._dist[i+9] += d;
+    }
+    for (int i = 0; i < 6; i++) {
+        dbox._dist[3+i] -= sqrt2*d;
+        dbox._dist[3+i+9] += sqrt2*d;
+    }
+    return dbox;
+}
+
 bool overlap (const BOX &box0, const BOX &box1, float thickness) {
-    return box0.overlaps(box1.dilate(thickness));
+    return box0.overlaps(dilate(box1, thickness));
 }
 
 float

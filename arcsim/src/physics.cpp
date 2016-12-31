@@ -26,14 +26,10 @@
 
 #include "physics.hpp"
 
-#include <omp.h>
-
 #include "blockvectors.hpp"
 #include "collisionutil.hpp"
-#include "magic.hpp"
 #include "sparse.hpp"
-//#include "taucs.hpp"
-#include "pcgsolver.hpp"
+#include "taucs.hpp"
 
 using namespace std;
 
@@ -228,25 +224,10 @@ double internal_energy (const Cloth &cloth) {
     const Mesh &mesh = cloth.mesh;
     ::materials = &cloth.materials;
     double E = 0;
-    int nthreads = ::magic.max_threads;
-    omp_set_num_threads(nthreads);
-    vector<double> my_E(nthreads, 0.0);
-#pragma omp parallel
-    {
-#pragma omp for
-        for (int f = 0; f < mesh.faces.size(); f++) {
-            int my_id = omp_get_thread_num();
-            my_E[my_id] += stretching_energy<s>(mesh.faces[f]);
-        }
-#pragma omp for
-        for (int e = 0; e < mesh.edges.size(); e++) {
-            int my_id = omp_get_thread_num();
-            my_E[my_id] += bending_energy<s>(mesh.edges[e]);
-        }
-    }
-    // Combine the results
-    for (int i = 0; i < nthreads; i++) {
-        E += my_E[i];
+    for (int f = 0; f < mesh.faces.size(); f++)
+        E += stretching_energy<s>(mesh.faces[f]);
+    for (int e = 0; e < mesh.edges.size(); e++) {
+        E += bending_energy<s>(mesh.edges[e]);
     }
     return E;
 }
@@ -261,84 +242,45 @@ void add_internal_forces (const Cloth &cloth, SpMat<Mat3x3> &A,
                           vector<Vec3> &b, double dt) {
     const Mesh &mesh = cloth.mesh;
     ::materials = &cloth.materials;
-    int nthreads = ::magic.max_threads;
-    omp_set_num_threads(nthreads);
-    vector<SpMat<Mat3x3> > my_A(nthreads); // each thread does its own accumulation
-    vector<vector<Vec3> > my_b(nthreads);  // later we'll accumulate the threads' results
-#pragma omp parallel
-    {
-#pragma omp for
-        // Initialize the local A, b
-        for (int i = 0; i < nthreads; i++) {
-            int my_id = omp_get_thread_num();
-            my_A[my_id].setVals(A.m, A.n);
-            my_b[my_id].resize(b.size());
-        }
-#pragma omp for
-        for (int f = 0; f < mesh.faces.size(); f++) {
-            int my_id = omp_get_thread_num();
-            const Face* face = mesh.faces[f];
-            const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
-                *n2 = face->v[2]->node;
-            Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
-            pair<Mat9x9, Vec9> membF = stretching_force<s>(face);
-            Mat9x9 J = membF.first;
-            Vec9 F = membF.second;
-            if (dt == 0) {
-                add_submat(-J, indices(n0, n1, n2), my_A[my_id]);
-                add_subvec(F, indices(n0, n1, n2), my_b[my_id]);
-            }
-            else {
-                double damping = (*::materials)[face->label]->damping;
-                add_submat(-dt*(dt + damping)*J, indices(n0, n1, n2), my_A[my_id]);
-                add_subvec(dt*(F + (dt + damping)*J*vs), indices(n0, n1, n2), my_b[my_id]);
-            }
-        }
-#pragma omp for
-        for (int e = 0; e < mesh.edges.size(); e++) {
-            int my_id = omp_get_thread_num();
-            const Edge *edge = mesh.edges[e];
-            if (!edge->adjf[0] || !edge->adjf[1])
-                continue;
-            pair<Mat12x12, Vec12> bendF = bending_force<s>(edge);
-            const Node *n0 = edge->n[0],
-                *n1 = edge->n[1],
-                *n2 = edge_opp_vert(edge, 0)->node,
-                *n3 = edge_opp_vert(edge, 1)->node;
-            Vec12 vs = mat_to_vec(Mat3x4(n0->v, n1->v, n2->v, n3->v));
-            Mat12x12 J = bendF.first;
-            Vec12 F = bendF.second;
-            if (dt == 0) {
-                add_submat(-J, indices(n0, n1, n2, n3), my_A[my_id]);
-                add_subvec(F, indices(n0, n1, n2, n3), my_b[my_id]);
-            }
-            else {
-                double damping = ((*::materials)[edge->adjf[0]->label]->damping +
-                    (*::materials)[edge->adjf[1]->label]->damping) / 2.;
-                add_submat(-dt*(dt + damping)*J, indices(n0, n1, n2, n3), my_A[my_id]);
-                add_subvec(dt*(F + (dt + damping)*J*vs), indices(n0, n1, n2, n3), my_b[my_id]);
-            }
+    for (int f = 0; f < mesh.faces.size(); f++) {
+        const Face* face = mesh.faces[f];
+        const Node *n0 = face->v[0]->node, *n1 = face->v[1]->node,
+                   *n2 = face->v[2]->node;
+        Vec9 vs = mat_to_vec(Mat3x3(n0->v, n1->v, n2->v));
+        pair<Mat9x9,Vec9> membF = stretching_force<s>(face);
+        Mat9x9 J = membF.first;
+        Vec9 F = membF.second;
+        if (dt == 0) {
+            add_submat(-J, indices(n0,n1,n2), A);
+            add_subvec(F, indices(n0,n1,n2), b);
+        } else {
+            double damping = (*::materials)[face->label]->damping;
+            add_submat(-dt*(dt+damping)*J, indices(n0,n1,n2), A);
+            add_subvec(dt*(F + (dt+damping)*J*vs), indices(n0,n1,n2), b);
         }
     }
-    // Combine the face results
-    SpMat<Mat3x3> combined_A(A);
-    vector<Vec3> combined_b(b.size());
-#pragma omp parallel for
-    for (int i = 0; i < A.m; i++) { // statically divide up the rows to add up
-        combined_b[i] = b[i];
-        for (int lst_idx = 0; lst_idx < nthreads; lst_idx++) {
-            combined_b[i] += my_b[lst_idx][i];
-            const SpVec<Mat3x3> row = my_A[lst_idx].rows[i];
-            for (int j = 0; j < row.indices.size(); j++) {
-                // Update that index with the entry
-                int col = row.indices[j];
-                Mat3x3 entry = row.entries[j];
-                combined_A.rows[i][col] += entry; // I'm the only thread modifying this row
-            }
+    for (int e = 0; e < mesh.edges.size(); e++) {
+        const Edge *edge = mesh.edges[e];
+        if (!edge->adjf[0] || !edge->adjf[1])
+            continue;
+        pair<Mat12x12,Vec12> bendF = bending_force<s>(edge);
+        const Node *n0 = edge->n[0],
+                   *n1 = edge->n[1],
+                   *n2 = edge_opp_vert(edge, 0)->node,
+                   *n3 = edge_opp_vert(edge, 1)->node;
+        Vec12 vs = mat_to_vec(Mat3x4(n0->v, n1->v, n2->v, n3->v));
+        Mat12x12 J = bendF.first;
+        Vec12 F = bendF.second;
+        if (dt == 0) {
+            add_submat(-J, indices(n0,n1,n2,n3), A);
+            add_subvec(F, indices(n0,n1,n2,n3), b);
+        } else {
+            double damping = ((*::materials)[edge->adjf[0]->label]->damping +
+                              (*::materials)[edge->adjf[1]->label]->damping)/2.;
+            add_submat(-dt*(dt+damping)*J, indices(n0,n1,n2,n3), A);
+            add_subvec(dt*(F + (dt+damping)*J*vs), indices(n0,n1,n2,n3), b);
         }
     }
-    b = combined_b;
-    A = combined_A;
 }
 template void add_internal_forces<PS> (const Cloth&, SpMat<Mat3x3>&,
                                        vector<Vec3>&, double);
@@ -442,8 +384,7 @@ void implicit_update (Cloth &cloth, const vector<Vec3> &fext,
     add_internal_forces<WS>(cloth, A, b, dt);
     add_constraint_forces(cloth, cons, A, b, dt);
     add_friction_forces(cloth, cons, A, b, dt);
-    //vector<Vec3> dv = taucs_linear_solve(A, b);
-    vector<Vec3> dv = pcgsolver_linear_solve(A,b);
+    vector<Vec3> dv = taucs_linear_solve(A, b);
     for (int n = 0; n < mesh.nodes.size(); n++) {
         Node *node = mesh.nodes[n];
         node->v += dv[n];
@@ -455,7 +396,7 @@ void implicit_update (Cloth &cloth, const vector<Vec3> &fext,
     compute_ws_data(mesh);
 }
 
-Vec3 wind_force (const Face *face, const Wind &wind, int frame) {
+Vec3 wind_force (const Face *face, const Wind &wind) {
     Vec3 vface = (face->v[0]->node->v + face->v[1]->node->v
                   + face->v[2]->node->v)/3.;
     Vec3 vrel = wind.velocity - vface;
@@ -466,14 +407,13 @@ Vec3 wind_force (const Face *face, const Wind &wind, int frame) {
 
 void add_external_forces (const Cloth &cloth, const Vec3 &gravity,
                           const Wind &wind, vector<Vec3> &fext,
-                          vector<Mat3x3> &Jext, int frame) {
+                          vector<Mat3x3> &Jext) {
     const Mesh &mesh = cloth.mesh;
-    for (int n = 0; n < mesh.nodes.size(); n++) {
+    for (int n = 0; n < mesh.nodes.size(); n++)
         fext[n] += mesh.nodes[n]->m*gravity;
-    }
     for (int f = 0; f < mesh.faces.size(); f++) {
         const Face *face = mesh.faces[f];
-        Vec3 fw = wind_force(face, wind, frame);
+        Vec3 fw = wind_force(face, wind);
         for (int v = 0; v < 3; v++)
             fext[face->v[v]->node->index] += fw/3.;
     }
