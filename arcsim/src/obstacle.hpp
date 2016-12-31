@@ -46,7 +46,7 @@ public:
     // meshes
     Mesh& get_mesh(double time_sec, int cur_frame, double percent, double frame_time);
     std::string motion_obj_file;
-    int motion_type, slow;//0 for regular; 1 for interpolating mocap data;
+    int motion_type, last_frame;//0 for regular; 1 for interpolating mocap data;
 
     // lerp with previous mesh at time t - dt
     void blend_with_previous (double t, double dt, double blend);
@@ -58,7 +58,7 @@ public:
     // A mesh containing the correct mesh structure
     Mesh curr_state_mesh, last_frame_mesh, next_frame_mesh;
 
-    Obstacle (): start_time(0), end_time(infinity), activated(false), slow(1) {}
+    Obstacle (): start_time(0), end_time(infinity), activated(false), last_frame(0) {}
 };
 
 // // Default arguments imply it's a static obstacle

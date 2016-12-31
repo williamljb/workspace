@@ -57,6 +57,124 @@
 #endif
 typedef Vec3 vec3f;
 
+class kDOP6 {
+public:
+    float _dist[6]; // 18: 0,9  1,10  2,11 -> 6: 0,3  1,4  2,5
+
+    FORCEINLINE kDOP6() {
+        empty();
+    }
+
+    FORCEINLINE kDOP6(const vec3f &v) {
+        _dist[0] = _dist[3] = v[0];
+        _dist[1] = _dist[4] = v[1];
+        _dist[2] = _dist[5] = v[2];
+    }
+
+    FORCEINLINE kDOP6(const vec3f &a, const vec3f &b) {
+        _dist[0] = MIN(a[0], b[0]);
+        _dist[3] = MAX(a[0], b[0]);
+        _dist[1] = MIN(a[1], b[1]);
+        _dist[4] = MAX(a[1], b[1]);
+        _dist[2] = MIN(a[2], b[2]);
+        _dist[5] = MAX(a[2], b[2]);
+    }
+
+    FORCEINLINE bool overlaps(const kDOP6& b) const
+    {
+        for (int i = 0; i<3; i++) {
+            if (_dist[i] > b._dist[i + 3]) return false;
+            if (_dist[i + 3] < b._dist[i]) return false;
+        }
+
+        return true;
+    }
+
+    FORCEINLINE bool overlaps(const kDOP6 &b, kDOP6 &ret) const
+    {
+        if (!overlaps(b))
+            return false;
+
+        for (int i = 0; i<3; i++) {
+            ret._dist[i] = MAX(_dist[i], b._dist[i]);
+            ret._dist[i + 3] = MIN(_dist[i + 3], b._dist[i + 3]);
+        }
+        return true;
+    }
+
+    FORCEINLINE bool inside(const vec3f &p) const
+    {
+        for (int i = 0; i<3; i++) {
+            if (p[i] < _dist[i] || p[i] > _dist[i + 3])
+                return false;
+        }
+
+        return true;
+    }
+
+    FORCEINLINE kDOP6 &operator += (const vec3f &p)
+    {
+        _dist[0] = MIN(p[0], _dist[0]);
+        _dist[3] = MAX(p[0], _dist[3]);
+        _dist[1] = MIN(p[1], _dist[1]);
+        _dist[4] = MAX(p[1], _dist[4]);
+        _dist[2] = MIN(p[2], _dist[2]);
+        _dist[5] = MAX(p[2], _dist[5]);
+
+        return *this;
+    }
+
+    FORCEINLINE kDOP6 &operator += (const kDOP6 &b)
+    {
+        _dist[0] = MIN(b._dist[0], _dist[0]);
+        _dist[3] = MAX(b._dist[3], _dist[3]);
+        _dist[1] = MIN(b._dist[1], _dist[1]);
+        _dist[4] = MAX(b._dist[4], _dist[4]);
+        _dist[2] = MIN(b._dist[2], _dist[2]);
+        _dist[5] = MAX(b._dist[5], _dist[5]);
+        return *this;
+    }
+
+    FORCEINLINE kDOP6 operator + (const kDOP6 &v) const
+    {
+        kDOP6 rt(*this); return rt += v;
+    }
+
+    FORCEINLINE float length(int i) const {
+        return _dist[i + 3] - _dist[i];
+    }
+
+    FORCEINLINE float width()  const { return _dist[3] - _dist[0]; }
+    FORCEINLINE float height() const { return _dist[4] - _dist[1]; }
+    FORCEINLINE float depth()  const { return _dist[5] - _dist[2]; }
+    FORCEINLINE float volume() const { return width()*height()*depth(); }
+
+    FORCEINLINE vec3f center() const {
+        return vec3f(_dist[0] + _dist[3], _dist[1] + _dist[4], _dist[2] + _dist[5])*0.5;
+    }
+
+    FORCEINLINE float center(int i) const {
+        return (_dist[i + 3] + _dist[i])*0.5f;
+    }
+
+    FORCEINLINE void empty() {
+        for (int i = 0; i<3; i++) {
+            _dist[i] = FLT_MAX;
+            _dist[i + 3] = -FLT_MAX;
+        }
+    }
+
+    kDOP6 dilate(double d) const {
+        static double sqrt2 = sqrt(2);
+        kDOP6 dbox;
+        for (int i = 0; i < 3; i++) {
+            dbox._dist[i] = _dist[i] - d;
+            dbox._dist[i + 3] = _dist[i + 3] + d;
+        }
+        return dbox;
+    }
+};
+
 class kDOP18 {
 public:
 	FORCEINLINE static void getDistances(const vec3f& p,
@@ -253,6 +371,20 @@ public:
 			_dist[i] = FLT_MAX;
 			_dist[i+9] = -FLT_MAX;
 		}
+	}
+
+	kDOP18 dilate(double d) const {
+		static double sqrt2 = sqrt(2);
+		kDOP18 dbox;
+		for (int i = 0; i < 3; i++) {
+			dbox._dist[i] = _dist[i] - d;
+			dbox._dist[i + 9] = _dist[i + 9] + d;
+		}
+		for (int i = 0; i < 6; i++) {
+			dbox._dist[3 + i] = _dist[3 + i] - sqrt2*d;
+			dbox._dist[3 + i + 9] = _dist[3 + i + 9] + sqrt2*d;
+		}
+		return dbox;
 	}
 };
 

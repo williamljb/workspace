@@ -186,7 +186,7 @@ void find_face_impacts (const Face *face0, const Face *face1);
 vector<Impact> find_impacts (const vector<AccelStruct*> &accs,
                              const vector<AccelStruct*> &obs_accs) {
     if (!impacts) {
-        ::nthreads = omp_get_max_threads();
+        ::nthreads = ::magic.max_threads;
         ::impacts = new vector<Impact>[::nthreads];
     }
     for (int t = 0; t < ::nthreads; t++)

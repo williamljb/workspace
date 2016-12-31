@@ -1,0 +1,4 @@
+/Users/williamljb/downloads/work/video/arcsim_killdevil/CMakeFiles/edit_cache.dir
+/Users/williamljb/downloads/work/video/arcsim_killdevil/CMakeFiles/rebuild_cache.dir
+/Users/williamljb/downloads/work/video/arcsim_killdevil/CMakeFiles/arcsimEXEC.dir
+/Users/williamljb/downloads/work/video/arcsim_killdevil/CMakeFiles/arcsim.dir

@@ -1,2 +1,0 @@
-/nas02/home/a/l/alexyang/arcsim/build/CMakeFiles/arcsim.dir
-/nas02/home/a/l/alexyang/arcsim/build/CMakeFiles/arcsimEXEC.dir

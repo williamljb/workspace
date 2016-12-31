@@ -40,17 +40,17 @@ const Mesh& Obstacle::get_mesh() const {
 }
 
 Mesh& Obstacle::get_mesh(double time, int cur_frame, double percent, double frame_time) {
-  percent = (percent + cur_frame%slow)/slow;
-  cur_frame = cur_frame / slow;
-  frame_time = frame_time * slow;
-  if (percent > 0.99){cur_frame++;percent=0;}
-  cout << cur_frame << " " << frame_time << endl;
     if (time > end_time)
         delete_mesh(curr_state_mesh);
     if (time < start_time || time > end_time)
         return curr_state_mesh;
     if (!activated) {
         curr_state_mesh = deep_copy(base_mesh);
+        if (motion_type == 1) {
+          last_frame_mesh = deep_copy(base_mesh);
+          load_obj(next_frame_mesh, stringf(motion_obj_file, cur_frame+1));
+          last_frame = 0;
+        }
     }
     if (transform_spline) {
         DTransformation dtrans = get_dtrans(*transform_spline, time);
@@ -62,8 +62,10 @@ Mesh& Obstacle::get_mesh(double time, int cur_frame, double percent, double fram
     }
     else if (motion_type == 1) {
       Mesh &mesh = curr_state_mesh;
+      if (cur_frame != last_frame)
       {
-        load_obj(last_frame_mesh, stringf(motion_obj_file, cur_frame));
+        last_frame = cur_frame;
+        last_frame_mesh = deep_copy(next_frame_mesh);
         load_obj(next_frame_mesh, stringf(motion_obj_file, cur_frame+1));
       }
       for (int n = 0; n < mesh.nodes.size(); ++n)
@@ -79,7 +81,6 @@ Mesh& Obstacle::get_mesh(double time, int cur_frame, double percent, double fram
 }
 
 void Obstacle::blend_with_previous (double t, double dt, double blend) {
-  if (motion_type==1) return;
     const Motion *spline = transform_spline;
     Transformation trans = (spline)
                          ? get_trans(*spline, t)

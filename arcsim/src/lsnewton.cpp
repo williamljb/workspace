@@ -26,7 +26,8 @@
 
 #include "optimization.hpp"
 
-#include "taucs.hpp"
+//#include "taucs.hpp"
+#include "pcgsolver.hpp"
 #include "util.hpp"
 
 using namespace std;
@@ -69,7 +70,8 @@ void line_search_newtons_method (const NLOpt &problem, OptOptions opt,
                  << "is not available!" << endl;
             exit(1);
         }
-        vector<double> p = taucs_linear_solve(H, g);
+        //vector<double> p = taucs_linear_solve(H, g);
+        vector<double> p = pcgsolver_linear_solve(H, g);
         if (verbose)
             REPORT(norm(p));
         scalar_mult(p, -1, p);

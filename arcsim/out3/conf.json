@@ -1,46 +1,127 @@
 // Sheet of letter paper folded twice
+
 // Narain et al. 2013, Figure 5
+
+
 {
-    "frame_time": 0.04,
-    "frame_steps": 8,
-    "end_time": 10,
-    "cloths": [{
-        "mesh": "meshes/sleeve_gen1.obj",
-        //"transform":{"translate":[10,0,0],"scale":0.1},
-        "materials": [{
-            "data": "materials/camel-ponte-roma.json",
-            "yield_curv": 200,
-            "weakening": 1
-        }],
-        "remeshing": {
-            "refine_angle": 0.3,
-            "refine_compression": 0.01,
-            "refine_velocity": 0.5,
-            "size": [10e-3, 200e-3],
-            "aspect_min": 0.2
-        }
-    }],
-    "motions": [[
-        {"time": 0, "transform": {"translate": [0, 0, 0]}},
-        {"time": 10, "transform": {"translate": [0, 0, 0],"rotate":[45,0,-1,0]}}
-    ],[
-        {"time": 0, "transform": {"translate": [0, 0, 0]}},
-        {"time": 10, "transform": {"translate": [0, 0, 0],"rotate":[45,0,1,0]}}
-    ]],
-    "obstacles": [{
-        "mesh": "meshes/sphere.obj",
-        "transform":{"scale":0.1}
-    }, {
-        "mesh": "meshes/roller.obj",
-        "transform": {"translate": [0.5,0,0], "rotate": [90, 0,1,0],"scale":0.1},
-        "motion":0
-    }, {
-        "mesh": "meshes/roller.obj",
-        "transform": {"translate": [-0.5,0,0], "rotate": [90, 0,1,0],"scale":0.1},
-        "motion":1
-    }],
-    "gravity": [0, 0, -9.8],
-    // "obs_friction": 0.2,
-    "disable": ["strainlimiting"],
-    "magic": {"collision_stiffness": 1e11, "handle_stiffness": 1e4}
+	"cloths" : 
+	[
+		
+		{//"transform":{"translate":[10,0,0],"scale":0.1},
+
+
+			"materials" : 
+			[
+				
+				{
+					"bending_mult" : 1.0,
+					"data" : "materials/camel-ponte-roma.json",
+					"stretching_mult" : 1.0,
+					"weakening" : 1,
+					"yield_curv" : 200
+				}
+			],
+			"mesh" : "meshes/sleeve_gen1.obj",
+			"remeshing" : 
+			{
+				"aspect_min" : 0.20,
+				"refine_angle" : 0.30,
+				"refine_compression" : 0.010,
+				"refine_velocity" : 0.50,
+				"size" : [ 0.010, 0.20 ]
+			}
+		}
+	],// "obs_friction": 0.2,
+
+
+	"disable" : [ "strainlimiting" ],
+	"end_time" : 10,
+	"frame_steps" : 8,
+	"frame_time" : 0.040,
+	"gravity" : [ 0, 0, -9.800000000000001 ],
+	"magic" : 
+	{
+		"collision_stiffness" : 100000000000.0,
+		"handle_stiffness" : 10000.0
+	},
+	"motions" : 
+	[
+		
+		[
+			
+			{
+				"time" : 0,
+				"transform" : 
+				{
+					"translate" : [ 0, 0, 0 ]
+				}
+			},
+			
+			{
+				"time" : 10,
+				"transform" : 
+				{
+					"rotate" : [ 45, 0, -1, 0 ],
+					"translate" : [ 0, 0, 0 ]
+				}
+			}
+		],
+		
+		[
+			
+			{
+				"time" : 0,
+				"transform" : 
+				{
+					"translate" : [ 0, 0, 0 ]
+				}
+			},
+			
+			{
+				"time" : 10,
+				"transform" : 
+				{
+					"rotate" : [ 45, 0, 1, 0 ],
+					"translate" : [ 0, 0, 0 ]
+				}
+			}
+		]
+	],
+	"obstacles" : 
+	[
+		
+		{
+			"mesh" : "meshes/sphere.obj",
+			"transform" : 
+			{
+				"scale" : 0.10
+			}
+		},
+		
+		{
+			"mesh" : "meshes/roller.obj",
+			"motion" : 0,
+			"transform" : 
+			{
+				"rotate" : [ 90, 0, 1, 0 ],
+				"scale" : 0.10,
+				"translate" : [ 0.50, 0, 0 ]
+			}
+		},
+		
+		{
+			"mesh" : "meshes/roller.obj",
+			"motion" : 1,
+			"transform" : 
+			{
+				"rotate" : [ 90, 0, 1, 0 ],
+				"scale" : 0.10,
+				"translate" : [ -0.50, 0, 0 ]
+			}
+		}
+	],
+	"wind" : 
+	{
+		"velocity" : [ 0.0, 0.0, 0.0 ]
+	}
 }

@@ -39,6 +39,7 @@ struct Cloth {
         double damping; // stiffness-proportional damping coefficient
         double strain_min, strain_max; // strain limits
         double yield_curv, weakening; // plasticity parameters
+        double density_mult, stretching_mult, bending_mult;
     };
     std::vector<Material*> materials;
     struct Remeshing {

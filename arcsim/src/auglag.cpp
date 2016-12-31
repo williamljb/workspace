@@ -27,6 +27,7 @@
 #include "optimization.hpp"
 
 #include "alglib/optimization.h"
+#include "magic.hpp"
 #include <omp.h>
 #include <vector>
 using namespace std;
@@ -86,7 +87,7 @@ static void auglag_value_and_grad (const real_1d_array &x, double &value,
     ::problem->precompute(&x[0]);
     value = ::problem->objective(&x[0]);
     ::problem->obj_grad(&x[0], &grad[0]);
-    static const int nthreads = omp_get_max_threads();
+    static const int nthreads = ::magic.max_threads;
     static double *values = new double[nthreads];
     static vector<double> *grads = new vector<double>[nthreads];
     for (int t = 0; t < nthreads; t++) {

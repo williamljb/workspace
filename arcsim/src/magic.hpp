@@ -27,6 +27,8 @@
 #ifndef MAGIC_HPP
 #define MAGIC_HPP
 
+#include <omp.h>
+
 // Magic numbers and other hacks
 
 struct Magic {
@@ -37,6 +39,7 @@ struct Magic {
     double rib_stiffening;
     bool combine_tensors;
     bool preserve_creases;
+    int max_threads;
     Magic ():
         fixed_high_res_mesh(false),
         handle_stiffness(1e3),
@@ -46,7 +49,8 @@ struct Magic {
         edge_flip_threshold(1e-2),
         rib_stiffening(1),
         combine_tensors(true),
-        preserve_creases(false) {}
+        preserve_creases(false),
+        max_threads(omp_get_max_threads()) {}
 };
 
 extern Magic magic;

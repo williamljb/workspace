@@ -89,6 +89,7 @@ void display_physics (const vector<string> &args) {
     if (!outprefix.empty())
         ensure_existing_directory(outprefix);
     init_physics(json_file, outprefix, false);
+    modify_material(10, 10);
     if (!outprefix.empty())
         save(sim, 0);
     GlutCallbacks cb;
@@ -98,12 +99,13 @@ void display_physics (const vector<string> &args) {
 }
 
 void display_resume (const vector<string> &args) {
-    if (args.size() != 2) {
+    if (args.size() != 2 && args.size() != 3) {
         cout << "Resumes an incomplete simulation." << endl;
         cout << "Arguments:" << endl;
         cout << "    <out-dir>: Directory containing simulation output files"
              << endl;
         cout << "    <resume-frame>: Frame number to resume from" << endl;
+        cout << "    <end-frame> (optional): Frame number to finish at" << endl;
         exit(EXIT_FAILURE);
     }
     init_resume(args);

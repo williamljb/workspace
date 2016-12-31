@@ -29,7 +29,7 @@
 #include "magic.hpp"
 #include "optimization.hpp"
 #include "physics.hpp"
-#include "taucs.hpp"
+//#include "taucs.hpp"
 #include <utility>
 using namespace std;
 

@@ -45,8 +45,8 @@ static bool running = false;
 static void reload () {
     int fullframe = ::frame*::frameskip;
     sim.time = fullframe * sim.frame_time;
-    if (!load_objs(sim.cloth_meshes, stringf("%s/%04d",inprefix.c_str(), fullframe))) {
-    //if (sim.cloth_meshes[0]->verts.empty()) {
+    load_objs(sim.cloth_meshes, stringf("%s/%04d",inprefix.c_str(), fullframe));
+    if (sim.cloth_meshes[0]->verts.empty()) {
         if (::frame == 0)
             exit(EXIT_FAILURE);
         if (!outprefix.empty())
@@ -55,7 +55,7 @@ static void reload () {
         reload();
     }
     for (int o = 0; o < sim.obstacles.size(); o++)
-        sim.obstacles[o].get_mesh(sim.time, fullframe, 0, sim.frame_steps*sim.step_time);
+        sim.obstacles[o].get_mesh(sim.time, sim.frame, (double)(sim.step-sim.frame*sim.frame_steps)/sim.frame_steps, sim.frame_steps*sim.step_time);
 }
 
 static void idle () {

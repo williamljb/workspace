@@ -24,10 +24,12 @@
   UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 */
 
+/*
 #include "display.hpp"
 #include "displayphysics.hpp"
 #include "displayreplay.hpp"
 #include "displaytesting.hpp"
+*/
 #include "misc.hpp"
 #include "io.hpp"
 #include "runphysics.hpp"
@@ -42,14 +44,15 @@ int main (int argc, char **argv) {
         string name;
         void (*run) (const vector<string> &args);
     } actions[] = {
-        {"simulate", display_physics},
+        //{"simulate", display_physics},
         {"simulateoffline", run_physics},
-        {"resume", display_resume},
+        {"initiate", init},
+        //{"resume", display_resume},
         {"resumeoffline", resume_physics},
-        {"replay", display_replay},
+        //{"replay", display_replay},
         {"merge", merge_meshes},
         {"split", split_meshes},
-        {"test", display_testing},
+        //{"test", display_testing},
         {"tri2obj", tri2obj},
         {"debug", debug}
     };

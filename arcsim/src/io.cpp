@@ -88,13 +88,13 @@ void triangle_to_obj (const string &inname, const string &outname) {
 
 vector<Face*> triangulate (const vector<Vert*> &verts);
 
-bool load_obj (Mesh &mesh, const string &filename) {
+void load_obj (Mesh &mesh, const string &filename) {
+    delete_mesh(mesh);
     fstream file(filename.c_str(), ios::in);
     if(!file) {
         cout << "Error: failed to open file " << filename << endl;
-        return false;
+        return;
     }
-    delete_mesh(mesh);
     while (file) {
         string line;
         get_valid_line(file, line);
@@ -165,14 +165,11 @@ bool load_obj (Mesh &mesh, const string &filename) {
     }
     mark_nodes_to_preserve(mesh);
     compute_ms_data(mesh);
-    return true;
 }
 
-bool load_objs (vector<Mesh*> &meshes, const string &prefix) {
-    bool ans = true;
+void load_objs (vector<Mesh*> &meshes, const string &prefix) {
     for (int m = 0; m < meshes.size(); m++)
-        ans = ans && load_obj(*meshes[m], stringf("%s_%02d.obj", prefix.c_str(), m));
-    return ans;
+        load_obj(*meshes[m], stringf("%s_%02d.obj", prefix.c_str(), m));
 }
 
 static double angle (const Vec3 &x0, const Vec3 &x1, const Vec3 &x2) {
@@ -324,50 +321,7 @@ void flip_image (int w, int h, unsigned char *pixels) {
                 swap(pixels[(i+w*j)*3+c], pixels[(i+w*(h-1-j))*3+c]);
 }
 
-void save_png (const char *filename, int width, int height,
-               unsigned char *pixels, bool has_alpha) {
-#ifndef _WIN32
-    FILE* file = fopen(filename, "wb");
-    if (!file) {
-        printf("Couldn't open file %s for writing.\n", filename);
-        return;
-    }
-    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
-                                                  NULL, NULL);
-    if (!png_ptr) {
-        printf("Couldn't create a PNG write structure.\n");
-        fclose(file);
-        return;
-    }
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
-        printf("Couldn't create a PNG info structure.\n");
-        png_destroy_write_struct(&png_ptr, NULL);
-        fclose(file);
-        return;
-    }
-    if (setjmp(png_jmpbuf(png_ptr))) {
-        printf("Had a problem writing %s.\n", filename);
-        png_destroy_write_struct(&png_ptr, &info_ptr);
-        fclose(file);
-        return;
-    }
-    png_init_io(png_ptr, file);
-    png_set_IHDR(png_ptr, info_ptr, width, height, 8,
-                 has_alpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB,
-                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-                 PNG_FILTER_TYPE_DEFAULT);
-    int channels = has_alpha ? 4 : 3;
-    png_bytep* row_pointers = (png_bytep*) new unsigned char*[height];
-    for (int y = 0; y < height; y++)
-        row_pointers[y] = (png_bytep) &pixels[y*width*channels];
-    png_set_rows(png_ptr, info_ptr, row_pointers);
-    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    delete[] row_pointers;
-    png_destroy_write_struct(&png_ptr, &info_ptr);
-    fclose(file);
-#endif
-}
+
 
 void ensure_existing_directory (const std::string &path) {
     using namespace boost::filesystem;
