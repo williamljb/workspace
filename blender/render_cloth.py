@@ -38,7 +38,7 @@ candidates_name = []
 c=0
 for item in lst_ply:
     fileName, fileExtension = os.path.splitext(lst_ply[c])
-    if fileExtension == ".obj":
+    if fileExtension == ".obj" and fileName[0]!='o':
         candidates.append("%s/%s"%(in_dir_ply,item))
         candidates_name.append(fileName)
     c=c+1
@@ -47,8 +47,8 @@ candidates_name.sort()
 
 obstacles = []
 c=0
-obs_ply = os.listdir(sys.argv[10])
 if len(sys.argv)==11:
+    obs_ply = os.listdir(sys.argv[10])
     for item in obs_ply:
         fileName, fileExtension = os.path.splitext(obs_ply[c])
         if fileExtension == ".obj":

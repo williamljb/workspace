@@ -121,7 +121,11 @@ def render_png(home, lst_ply, in_dir, n, candidates, candidates_name, out_dir, o
     if len(obstacles)>0:
         bpy.data.objects["Camera"].location=Vector((2.83,-1.05,2.60))
         bpy.data.objects["Camera"].rotation_euler=Vector((1.11,0.0108,0.815))
-    bpy.data.scenes["Scene"].render.image_settings.file_format = 'OPEN_EXR_MULTILAYER'
+    ##for elbow!
+    bpy.data.objects["Camera"].location=Vector((-0.5,1.11,1.87))
+    bpy.data.objects["Camera"].rotation_euler=Vector((0.533,0.168,3.25))
+
+    bpy.data.scenes["Scene"].render.image_settings.file_format = 'PNG'
     bpy.data.scenes["Scene"].render.engine = 'CYCLES'
     bpy.data.scenes["Scene"].cycles.film_transparent = True
     bpy.data.scenes["Scene"].render.image_settings.exr_codec = 'ZIP'
@@ -195,7 +199,7 @@ def render_png(home, lst_ply, in_dir, n, candidates, candidates_name, out_dir, o
         bpy.context.scene.objects.active = cur
         cur.active_material = mat
         if i==0:
-            scale_uv(candidates_name[0], 0.3)
+            scale_uv(candidates_name[0], 0.5)
         bpy.ops.anim.insert_keyframe_animall()
     bpy.ops.object.shade_smooth()
     bpy.ops.object.particle_system_add()
